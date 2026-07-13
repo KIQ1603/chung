@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <script src="https://aframe.io/releases/1.5.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
+  <style>
+    body {
+      margin: 0;
+      overflow: hidden;
+    }
+
+    #start-screen {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      background: rgba(0, 0, 0, 0.9);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      color: white;
+      font-family: sans-serif;
+      text-align: center;
+      padding: 0 20px;
+    }
+
+    #start-btn {
+      padding: 15px 30px;
+      font-size: 18px;
+      background: #28a745;
+      color: white;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      margin-top: 15px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div id="start-screen">
+    <p>Hướng camera vào túi hoặc hình in để xem nội dung AR.</p>
+    <button id="start-btn">Bắt đầu quét</button>
+  </div>
+
+  <a-scene mindar-image="imageTargetSrc: ./targets.mind; autoStart: false; uiLoading: no; uiError: no; uiScanning: yes;"
+    color-space="sRGB" renderer="colorManagement: true, physicallyCorrectLights" vr-mode-ui="enabled: false"
+    device-orientation-permission-ui="enabled: false">
+
+    <a-assets>
+      <!-- Video có tiếng, preload metadata cho nhẹ, không muted để có âm thanh -->
+      <video id="video1" src="./video1.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
+      <video id="video2" src="./video2.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
+      <video id="video3" src="./video3.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
+      <video id="video4" src="./video4.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
+      <video id="video5" src="./video5.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
+    </a-assets>
+
+    <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
+
+    <!-- targets.mind có 5 ảnh (index 0-4), mỗi ảnh tương ứng 1 video -->
+    <a-entity id="target1" mindar-image-target="targetIndex: 0">
+      <a-video src="#video1" width="1" height="1.25" position="0 0 0"></a-video>
+    </a-entity>
+    <a-entity id="target2" mindar-image-target="targetIndex: 1">
+      <a-video src="#video2" width="1" height="1.25" position="0 0 0"></a-video>
+    </a-entity>
+    <a-entity id="target3" mindar-image-target="targetIndex: 2">
+      <a-video src="#video3" width="1" height="1.25" position="0 0 0"></a-video>
+    </a-entity>
+    <a-entity id="target4" mindar-image-target="targetIndex: 3">
+      <a-video src="#video4" width="1" height="1.25" position="0 0 0"></a-video>
+    </a-entity>
+    <a-entity id="target5" mindar-image-target="targetIndex: 4">
+      <a-video src="#video5" width="1" height="1.25" position="0 0 0"></a-video>
+    </a-entity>
+
+  </a-scene>
+
+  <script>
+    const startBtn = document.querySelector('#start-btn');
+    const startScreen = document.querySelector('#start-screen');
+    const sceneEl = document.querySelector('a-scene');
+
+    const videos = [1, 2, 3, 4, 5].map(i => document.querySelector(`#video${i}`));
+    const targets = [1, 2, 3, 4, 5].map(i => document.querySelector(`#target${i}`));
+
+    // Khi bấm bắt đầu: ẩn màn hình intro, kích hoạt audio bằng user-gesture rồi mới start MindAR
+    startBtn.addEventListener('click', async () => {
+      startScreen.style.display = 'none';
+
+      // Thao tác phát/tạm dừng trong sự kiện click để trình duyệt cho phép audio trên mobile
+      for (const v of videos) {
+        if (!v) continue;
+        try {
+          v.muted = false;
+          await v.play();
+          v.pause();
+          v.currentTime = 0;
+        } catch (e) {
+          console.warn('Không pre-play được video để bật tiếng:', e);
+        }
+      }
+
+      sceneEl.systems["mindar-image-system"].start();
+    });
+
+    // Khi nhận diện được ảnh thì chạy video tương ứng, mất ảnh thì dừng
+    targets.forEach((t, i) => {
+      const v = videos[i];
+      if (!t || !v) return;
+      t.addEventListener("targetFound", () => v.play());
+      t.addEventListener("targetLost", () => v.pause());
+    });
+  </script>
+</body>
+
+</html>
