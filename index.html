@@ -56,6 +56,7 @@
       <video id="video3" src="./video3.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
       <video id="video4" src="./video4.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
       <video id="video5" src="./video5.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
+      <video id="video6" src="./video6.mp4" loop="true" crossorigin="anonymous" playsinline preload="metadata"></video>
     </a-assets>
 
     <a-camera position="0 0 0" look-controls="enabled: false"></a-camera>
@@ -75,6 +76,9 @@
     <a-entity id="target5" mindar-image-target="targetIndex: 4">
       <a-video src="#video5" position="0 0 0"></a-video>
     </a-entity>
+    <a-entity id="target6" mindar-image-target="targetIndex: 5">
+      <a-video src="#video6" position="0 0 0"></a-video>
+    </a-entity>
 
   </a-scene>
 
@@ -83,8 +87,8 @@
     const startScreen = document.querySelector('#start-screen');
     const sceneEl = document.querySelector('a-scene');
 
-    const videos = [1, 2, 3, 4, 5].map(i => document.querySelector(`#video${i}`));
-    const targets = [1, 2, 3, 4, 5].map(i => document.querySelector(`#target${i}`));
+    const videos = [1, 2, 3, 4, 5, 6].map(i => document.querySelector(`#video${i}`));
+    const targets = [1, 2, 3, 4, 5, 6].map(i => document.querySelector(`#target${i}`));
 
     // Tự động điều chỉnh kích thước a-video dựa trên tỷ lệ thực của file mp4
     videos.forEach((v, i) => {
